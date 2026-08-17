@@ -13,8 +13,13 @@
 
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans JP",
-                   "Yu Gothic", sans-serif;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Noto Sans JP",
+        "Yu Gothic",
+        sans-serif;
+
       background: #f5f5f5;
       color: #222;
     }
@@ -22,13 +27,13 @@
     header {
       background: #111;
       color: white;
-      padding: 45px 20px;
+      padding: 50px 20px;
       text-align: center;
     }
 
     header h1 {
       margin: 0;
-      font-size: 2.2rem;
+      font-size: 2.3rem;
       letter-spacing: 0.08em;
     }
 
@@ -39,41 +44,58 @@
     }
 
     main {
-      max-width: 800px;
+      max-width: 850px;
       margin: 0 auto;
       padding: 30px 16px 60px;
     }
 
-    .section-title {
-      font-size: 1.4rem;
-      margin: 0 0 20px;
+    .season {
+      margin-bottom: 45px;
+    }
+
+    .season-header {
+      margin-bottom: 20px;
+    }
+
+    .season-title {
+      font-size: 1.5rem;
+      margin: 0 0 15px;
       border-left: 5px solid #222;
       padding-left: 12px;
     }
 
-    .game {
+    .record {
       background: white;
       border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      padding: 18px;
+      margin-bottom: 20px;
+
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      text-align: center;
     }
 
-    .date {
-      color: #777;
-      font-size: 0.9rem;
-      margin-bottom: 5px;
+    .record-item {
+      border-right: 1px solid #eee;
     }
 
-    .opponent {
-      font-size: 1.15rem;
+    .record-item:last-child {
+      border-right: none;
+    }
+
+    .record-label {
+      display: block;
+      font-size: 0.75rem;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .record-value {
+      font-size: 1.25rem;
       font-weight: bold;
-    }
-
-    .score {
-      font-size: 1.6rem;
-      font-weight: bold;
-      margin: 10px 0;
     }
 
     .win {
@@ -88,14 +110,43 @@
       color: #666;
     }
 
+    .game {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .date {
+      color: #777;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+
+    .opponent {
+      font-size: 1.15rem;
+      font-weight: bold;
+    }
+
+    .score {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
     .video-button {
       display: inline-block;
       margin-top: 8px;
       padding: 10px 18px;
+
       background: #222;
       color: white;
+
       text-decoration: none;
       border-radius: 6px;
+
       font-size: 0.9rem;
     }
 
@@ -106,11 +157,11 @@
     .loading {
       text-align: center;
       color: #777;
-      padding: 30px;
+      padding: 40px;
     }
 
     .error {
-      background: #fff;
+      background: white;
       padding: 20px;
       border-radius: 10px;
       color: #b3261e;
@@ -122,137 +173,425 @@
       color: #888;
       font-size: 0.8rem;
     }
+
+    @media (max-width: 600px) {
+
+      header h1 {
+        font-size: 2rem;
+      }
+
+      .record {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .record-value {
+        font-size: 1.05rem;
+      }
+
+    }
   </style>
 </head>
 
 <body>
 
-  <header>
-    <h1>野澤の足跡</h1>
-    <p>野澤ナイン 試合記録</p>
-  </header>
+<header>
 
-  <main>
+  <h1>野澤の足跡</h1>
 
-    <section>
-      <h2 class="section-title">2026年</h2>
+  <p>野澤ナイン 試合記録</p>
 
-      <div id="games">
-        <div class="loading">
-          試合記録を読み込んでいます……
-        </div>
-      </div>
-    </section>
+</header>
 
-  </main>
 
-  <footer>
-    © 野澤ナイン
-  </footer>
+<main>
 
-  <script>
+  <div id="content">
 
-    const API_URL = "https://script.google.com/macros/s/AKfycby1bvuObvvdzl6gqAzhlMQpENW7d6ZBWxz0ulKILTctJRZ9rUfZ4WzeS5TWRogfUMDt/exec";
+    <div class="loading">
+      試合記録を読み込んでいます……
+    </div>
 
-    async function loadGames() {
+  </div>
 
-      const container = document.getElementById("games");
+</main>
 
-      try {
 
-        const response = await fetch(API_URL);
+<footer>
 
-        if (!response.ok) {
-          throw new Error("データの取得に失敗しました");
-        }
+  © 野澤ナイン
 
-        const games = await response.json();
+</footer>
 
-        container.innerHTML = "";
 
-        games.reverse().forEach(game => {
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycby1bvuObvvdzl6gqAzhlMQpENW7d6ZBWxz0ulKILTctJRZ9rUfZ4WzeS5TWRogfUMDt/exec";
+
+
+async function loadGames() {
+
+  const content = document.getElementById("content");
+
+  try {
+
+    const response = await fetch(API_URL);
+
+    if (!response.ok) {
+      throw new Error("データ取得失敗");
+    }
+
+    const games = await response.json();
+
+
+    /*
+     * 日付を新しい順に並べる
+     */
+
+    games.sort((a, b) => {
+
+      return new Date(b.date) - new Date(a.date);
+
+    });
+
+
+    /*
+     * 年度ごとに分類
+     */
+
+    const seasons = {};
+
+
+    games.forEach(game => {
+
+      const date = new Date(game.date);
+
+      const year = date.getFullYear();
+
+      if (!seasons[year]) {
+
+        seasons[year] = [];
+
+      }
+
+      seasons[year].push(game);
+
+    });
+
+
+    content.innerHTML = "";
+
+
+    /*
+     * 年度を新しい順に表示
+     */
+
+    Object.keys(seasons)
+      .sort((a, b) => b - a)
+      .forEach(year => {
+
+        const seasonGames = seasons[year];
+
+
+        /*
+         * 成績集計
+         */
+
+        let wins = 0;
+        let losses = 0;
+        let draws = 0;
+
+        let runsFor = 0;
+        let runsAgainst = 0;
+
+
+        seasonGames.forEach(game => {
+
+          const scoreFor = Number(game.scoreFor);
+          const scoreAgainst = Number(game.scoreAgainst);
+
+          runsFor += scoreFor;
+          runsAgainst += scoreAgainst;
+
+
+          if (scoreFor > scoreAgainst) {
+
+            wins++;
+
+          } else if (scoreFor < scoreAgainst) {
+
+            losses++;
+
+          } else {
+
+            draws++;
+
+          }
+
+        });
+
+
+        const gamesCount = seasonGames.length;
+
+        const winRate =
+          gamesCount > 0
+            ? ((wins / gamesCount) * 100).toFixed(1)
+            : "0.0";
+
+
+        /*
+         * 年度セクション
+         */
+
+        const seasonElement =
+          document.createElement("section");
+
+        seasonElement.className = "season";
+
+
+        seasonElement.innerHTML = `
+
+          <div class="season-header">
+
+            <h2 class="season-title">
+              ${year}年
+            </h2>
+
+
+            <div class="record">
+
+              <div class="record-item">
+
+                <span class="record-label">
+                  試合
+                </span>
+
+                <span class="record-value">
+                  ${gamesCount}
+                </span>
+
+              </div>
+
+
+              <div class="record-item">
+
+                <span class="record-label">
+                  勝敗
+                </span>
+
+                <span class="record-value">
+                  ${wins}勝 ${losses}敗 ${draws}分
+                </span>
+
+              </div>
+
+
+              <div class="record-item">
+
+                <span class="record-label">
+                  勝率
+                </span>
+
+                <span class="record-value">
+                  ${winRate}%
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="record">
+
+              <div class="record-item">
+
+                <span class="record-label">
+                  得点
+                </span>
+
+                <span class="record-value">
+                  ${runsFor}
+                </span>
+
+              </div>
+
+
+              <div class="record-item">
+
+                <span class="record-label">
+                  失点
+                </span>
+
+                <span class="record-value">
+                  ${runsAgainst}
+                </span>
+
+              </div>
+
+
+              <div class="record-item">
+
+                <span class="record-label">
+                  得失点差
+                </span>
+
+                <span class="record-value">
+                  ${runsFor - runsAgainst}
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        `;
+
+
+        /*
+         * 試合カード
+         */
+
+        seasonGames.forEach(game => {
 
           const date = new Date(game.date);
 
-          const year = date.getFullYear();
-          const month = date.getMonth() + 1;
-          const day = date.getDate();
+          const month =
+            date.getMonth() + 1;
+
+          const day =
+            date.getDate();
+
 
           let resultClass = "draw";
+
           let resultText = "DRAW";
 
-          if (Number(game.scoreFor) > Number(game.scoreAgainst)) {
+
+          if (
+            Number(game.scoreFor) >
+            Number(game.scoreAgainst)
+          ) {
+
             resultClass = "win";
             resultText = "WIN";
+
           }
 
-          if (Number(game.scoreFor) < Number(game.scoreAgainst)) {
+
+          if (
+            Number(game.scoreFor) <
+            Number(game.scoreAgainst)
+          ) {
+
             resultClass = "lose";
             resultText = "LOSE";
+
           }
 
-          const gameElement = document.createElement("div");
+
+          const gameElement =
+            document.createElement("div");
 
           gameElement.className = "game";
 
+
           gameElement.innerHTML = `
+
             <div class="date">
+
               ${year}年${month}月${day}日
+
             </div>
+
 
             <div class="opponent">
+
               vs ${escapeHtml(game.opponent)}
+
             </div>
 
+
             <div class="score ${resultClass}">
-              ${game.scoreFor} - ${game.scoreAgainst}
+
+              ${game.scoreFor}
+              -
+              ${game.scoreAgainst}
+
               ${resultText}
+
             </div>
+
 
             ${
               game.youtube
-              ? `
+              ?
+              `
+
                 <a
                   class="video-button"
                   href="${game.youtube}"
                   target="_blank"
                   rel="noopener noreferrer">
+
                   試合動画を見る
+
                 </a>
+
               `
-              : ""
+              :
+              ""
             }
+
           `;
 
-          container.appendChild(gameElement);
+
+          seasonElement.appendChild(gameElement);
 
         });
 
-      } catch (error) {
 
-        container.innerHTML = `
-          <div class="error">
-            試合記録を読み込めませんでした。<br>
-            Apps Scriptの設定を確認してください。
-          </div>
-        `;
+        content.appendChild(seasonElement);
 
-        console.error(error);
-      }
-    }
+      });
 
-    function escapeHtml(text) {
 
-      const div = document.createElement("div");
+  } catch (error) {
 
-      div.textContent = text;
+    console.error(error);
 
-      return div.innerHTML;
-    }
+    content.innerHTML = `
 
-    loadGames();
+      <div class="error">
 
-  </script>
+        試合記録を読み込めませんでした。<br>
+
+        Apps Scriptの設定を確認してください。
+
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text;
+
+  return div.innerHTML;
+
+}
+
+
+loadGames();
+
+</script>
 
 </body>
 </html>

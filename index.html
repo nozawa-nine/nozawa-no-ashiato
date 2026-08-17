@@ -51,10 +51,6 @@
       padding-left: 12px;
     }
 
-    .season {
-      margin-bottom: 40px;
-    }
-
     .game {
       background: white;
       border-radius: 10px;
@@ -107,6 +103,19 @@
       opacity: 0.8;
     }
 
+    .loading {
+      text-align: center;
+      color: #777;
+      padding: 30px;
+    }
+
+    .error {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      color: #b3261e;
+    }
+
     footer {
       text-align: center;
       padding: 25px;
@@ -125,37 +134,14 @@
 
   <main>
 
-    <section class="season">
+    <section>
       <h2 class="section-title">2026年</h2>
 
-      <div class="game">
-        <div class="date">2026年8月16日</div>
-        <div class="opponent">vs ○○クラブ</div>
-        <div class="score win">5 - 3　WIN</div>
-
-        <a
-          class="video-button"
-          href="https://www.youtube.com/"
-          target="_blank"
-          rel="noopener noreferrer">
-          試合動画を見る
-        </a>
+      <div id="games">
+        <div class="loading">
+          試合記録を読み込んでいます……
+        </div>
       </div>
-
-      <div class="game">
-        <div class="date">2026年8月2日</div>
-        <div class="opponent">vs △△クラブ</div>
-        <div class="score lose">2 - 6　LOSE</div>
-
-        <a
-          class="video-button"
-          href="https://www.youtube.com/"
-          target="_blank"
-          rel="noopener noreferrer">
-          試合動画を見る
-        </a>
-      </div>
-
     </section>
 
   </main>
@@ -163,6 +149,110 @@
   <footer>
     © 野澤ナイン
   </footer>
+
+  <script>
+
+    const API_URL = "https://script.google.com/macros/s/AKfycby1bvuObvvdzl6gqAzhlMQpENW7d6ZBWxz0ulKILTctJRZ9rUfZ4WzeS5TWRogfUMDt/exec";
+
+    async function loadGames() {
+
+      const container = document.getElementById("games");
+
+      try {
+
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+          throw new Error("データの取得に失敗しました");
+        }
+
+        const games = await response.json();
+
+        container.innerHTML = "";
+
+        games.reverse().forEach(game => {
+
+          const date = new Date(game.date);
+
+          const year = date.getFullYear();
+          const month = date.getMonth() + 1;
+          const day = date.getDate();
+
+          let resultClass = "draw";
+          let resultText = "DRAW";
+
+          if (Number(game.scoreFor) > Number(game.scoreAgainst)) {
+            resultClass = "win";
+            resultText = "WIN";
+          }
+
+          if (Number(game.scoreFor) < Number(game.scoreAgainst)) {
+            resultClass = "lose";
+            resultText = "LOSE";
+          }
+
+          const gameElement = document.createElement("div");
+
+          gameElement.className = "game";
+
+          gameElement.innerHTML = `
+            <div class="date">
+              ${year}年${month}月${day}日
+            </div>
+
+            <div class="opponent">
+              vs ${escapeHtml(game.opponent)}
+            </div>
+
+            <div class="score ${resultClass}">
+              ${game.scoreFor} - ${game.scoreAgainst}
+              ${resultText}
+            </div>
+
+            ${
+              game.youtube
+              ? `
+                <a
+                  class="video-button"
+                  href="${game.youtube}"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  試合動画を見る
+                </a>
+              `
+              : ""
+            }
+          `;
+
+          container.appendChild(gameElement);
+
+        });
+
+      } catch (error) {
+
+        container.innerHTML = `
+          <div class="error">
+            試合記録を読み込めませんでした。<br>
+            Apps Scriptの設定を確認してください。
+          </div>
+        `;
+
+        console.error(error);
+      }
+    }
+
+    function escapeHtml(text) {
+
+      const div = document.createElement("div");
+
+      div.textContent = text;
+
+      return div.innerHTML;
+    }
+
+    loadGames();
+
+  </script>
 
 </body>
 </html>

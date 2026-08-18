@@ -130,7 +130,7 @@
       margin-bottom: 15px;
     }
 
-    .video {
+    .card {
       background: white;
       border-radius: 14px;
       padding: 20px;
@@ -155,13 +155,19 @@
       font-weight: 600;
     }
 
-    .info {
-      background: white;
-      border-radius: 14px;
-      padding: 20px;
+    .memo {
+      line-height: 1.9;
+      white-space: pre-wrap;
+    }
 
-      box-shadow:
-        0 2px 10px rgba(0, 0, 0, 0.05);
+    .photo {
+      width: 100%;
+      display: block;
+      border-radius: 10px;
+    }
+
+    .photo-link {
+      display: block;
     }
 
     .info-row {
@@ -268,7 +274,7 @@
 <script>
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycby1bvuObvvdzl6gqAzhlMQpENW7d6ZBWxz0ulKILTctJRZ9rUfZ4WzeS5TWRogfUMDt/exec";
+  "https://script.google.com/macros/s/AKfycbzq93sES0c32ta5NPsjpp67mS3e6P9Cstxj79VBWy2RjSKYt2rVwNWt8kX7vQF70McU/exec";
 
 
 async function loadGame() {
@@ -422,21 +428,19 @@ async function loadGame() {
       </div>
 
 
-      <section class="section">
+      ${
+        game.youtube
+        ?
 
-        <h2 class="section-title">
-          試合動画
-        </h2>
+        `
 
+          <section class="section">
 
-        <div class="video">
+            <h2 class="section-title">
+              試合動画
+            </h2>
 
-          ${
-            game.youtube
-
-            ?
-
-            `
+            <div class="card">
 
               <a
                 class="video-button"
@@ -448,22 +452,89 @@ async function loadGame() {
 
               </a>
 
-            `
+            </div>
 
-            :
+          </section>
 
-            `
+        `
 
-              <div class="loading">
-                試合動画は登録されていません。
+        :
+
+        ""
+
+      }
+
+
+      ${
+        game.memo
+        ?
+
+        `
+
+          <section class="section">
+
+            <h2 class="section-title">
+              試合メモ
+            </h2>
+
+            <div class="card">
+
+              <div class="memo">
+                ${escapeHtml(game.memo)}
               </div>
 
-            `
-          }
+            </div>
 
-        </div>
+          </section>
 
-      </section>
+        `
+
+        :
+
+        ""
+
+      }
+
+
+      ${
+        game.photo
+        ?
+
+        `
+
+          <section class="section">
+
+            <h2 class="section-title">
+              試合写真
+            </h2>
+
+            <div class="card">
+
+              <a
+                class="photo-link"
+                href="${game.photo}"
+                target="_blank"
+                rel="noopener noreferrer">
+
+                <img
+                  class="photo"
+                  src="${game.photo}"
+                  alt="試合写真"
+                >
+
+              </a>
+
+            </div>
+
+          </section>
+
+        `
+
+        :
+
+        ""
+
+      }
 
 
       <section class="section">
@@ -473,7 +544,7 @@ async function loadGame() {
         </h2>
 
 
-        <div class="info">
+        <div class="card">
 
           <div class="info-row">
 
@@ -527,7 +598,6 @@ async function loadGame() {
             </span>
 
           </div>
-
 
         </div>
 

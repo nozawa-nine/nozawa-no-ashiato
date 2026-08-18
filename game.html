@@ -558,7 +558,6 @@ async function loadGame() {
 
           </div>
 
-
           <div class="info-row">
 
             <span class="info-label">
@@ -573,6 +572,19 @@ async function loadGame() {
 
           </div>
 
+<div class="info-row">
+
+  <span class="info-label">
+    試合会場
+  </span>
+
+  <span>
+    ${escapeHtml(
+      game.venue || "未登録"
+    )}
+  </span>
+
+</div>
 
           <div class="info-row">
 

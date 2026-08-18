@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>試合詳細｜野澤の足跡</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Noto Sans JP",
+        "Yu Gothic",
+        sans-serif;
+
+      background: #f3f4f6;
+      color: #171717;
+    }
+
+    header {
+      background: #111;
+      color: white;
+      padding: 35px 20px;
+      text-align: center;
+    }
+
+    header a {
+      color: #aaa;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+
+    header a:hover {
+      color: white;
+    }
+
+    header h1 {
+      margin: 15px 0 0;
+      font-size: 1.7rem;
+      letter-spacing: 0.08em;
+    }
+
+    main {
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 35px 16px 70px;
+    }
+
+    .date {
+      text-align: center;
+      color: #777;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+
+    .result {
+      background: white;
+      border-radius: 14px;
+      padding: 30px 20px;
+      text-align: center;
+
+      box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .teams {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    .team {
+      flex: 1;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .score {
+      font-size: 2.5rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .vs {
+      color: #aaa;
+      font-size: 0.8rem;
+      margin: 0 5px;
+    }
+
+    .result-label {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .win {
+      background: #e3f2e9;
+      color: #176b3a;
+    }
+
+    .lose {
+      background: #fbe5e3;
+      color: #b3261e;
+    }
+
+    .draw {
+      background: #eee;
+      color: #666;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      border-left: 5px solid #222;
+      padding-left: 10px;
+      margin-bottom: 15px;
+    }
+
+    .video {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+
+      box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .video-button {
+      display: block;
+      padding: 13px 18px;
+
+      background: #222;
+      color: white;
+
+      text-align: center;
+      text-decoration: none;
+
+      border-radius: 7px;
+
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .info {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+
+      box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #777;
+    }
+
+    .loading {
+      text-align: center;
+      color: #777;
+      padding: 50px 20px;
+    }
+
+    .error {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      color: #b3261e;
+    }
+
+    .back-button {
+      display: block;
+      margin-top: 30px;
+
+      text-align: center;
+
+      color: #555;
+      text-decoration: none;
+
+      font-size: 0.9rem;
+    }
+
+    footer {
+      border-top: 1px solid #ddd;
+      text-align: center;
+      padding: 30px 20px;
+
+      color: #999;
+      font-size: 0.75rem;
+    }
+
+    @media (max-width: 600px) {
+
+      .teams {
+        gap: 8px;
+      }
+
+      .team {
+        font-size: 0.9rem;
+      }
+
+      .score {
+        font-size: 2rem;
+      }
+
+    }
+  </style>
+</head>
+
+
+<body>
+
+<header>
+
+  <a href="index.html">
+    ← 野澤の足跡に戻る
+  </a>
+
+  <h1>試合詳細</h1>
+
+</header>
+
+
+<main>
+
+  <div id="content">
+
+    <div class="loading">
+      試合情報を読み込んでいます……
+    </div>
+
+  </div>
+
+</main>
+
+
+<footer>
+  © 野澤ナイン
+</footer>
+
+
+<script>
+
+const API_URL =
+  "https://script.google.com/macros/s/AKfycby1bvuObvvdzl6gqAzhlMQpENW7d6ZBWxz0ulKILTctJRZ9rUfZ4WzeS5TWRogfUMDt/exec";
+
+
+async function loadGame() {
+
+  const content =
+    document.getElementById("content");
+
+
+  try {
+
+    const response =
+      await fetch(API_URL);
+
+
+    if (!response.ok) {
+      throw new Error("データ取得失敗");
+    }
+
+
+    const games =
+      await response.json();
+
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+
+    const targetDate =
+      params.get("date");
+
+    const targetOpponent =
+      params.get("opponent");
+
+
+    const game =
+      games.find(item => {
+
+        const itemDate =
+          new Date(item.date)
+            .toISOString()
+            .slice(0, 10);
+
+
+        return (
+          itemDate === targetDate &&
+          item.opponent === targetOpponent
+        );
+
+      });
+
+
+    if (!game) {
+
+      throw new Error(
+        "試合が見つかりません"
+      );
+
+    }
+
+
+    const date =
+      new Date(game.date);
+
+
+    const year =
+      date.getFullYear();
+
+    const month =
+      date.getMonth() + 1;
+
+    const day =
+      date.getDate();
+
+
+    const scoreFor =
+      Number(game.scoreFor);
+
+    const scoreAgainst =
+      Number(game.scoreAgainst);
+
+
+    let resultClass = "draw";
+    let resultText = "DRAW";
+
+
+    if (scoreFor > scoreAgainst) {
+
+      resultClass = "win";
+      resultText = "WIN";
+
+    }
+
+    else if (scoreFor < scoreAgainst) {
+
+      resultClass = "lose";
+      resultText = "LOSE";
+
+    }
+
+
+    content.innerHTML = `
+
+      <div class="date">
+
+        ${year}年${month}月${day}日
+
+      </div>
+
+
+      <div class="result">
+
+        <div class="teams">
+
+          <div class="team">
+            野澤ナイン
+          </div>
+
+
+          <div class="score">
+
+            ${scoreFor}
+
+            <span class="vs">
+              -
+            </span>
+
+            ${scoreAgainst}
+
+          </div>
+
+
+          <div class="team">
+
+            ${escapeHtml(
+              game.opponent
+            )}
+
+          </div>
+
+        </div>
+
+
+        <div class="result-label ${resultClass}">
+
+          ${resultText}
+
+        </div>
+
+      </div>
+
+
+      <section class="section">
+
+        <h2 class="section-title">
+          試合動画
+        </h2>
+
+
+        <div class="video">
+
+          ${
+            game.youtube
+
+            ?
+
+            `
+
+              <a
+                class="video-button"
+                href="${game.youtube}"
+                target="_blank"
+                rel="noopener noreferrer">
+
+                YouTubeで試合を見る
+
+              </a>
+
+            `
+
+            :
+
+            `
+
+              <div class="loading">
+                試合動画は登録されていません。
+              </div>
+
+            `
+          }
+
+        </div>
+
+      </section>
+
+
+      <section class="section">
+
+        <h2 class="section-title">
+          試合情報
+        </h2>
+
+
+        <div class="info">
+
+          <div class="info-row">
+
+            <span class="info-label">
+              試合日
+            </span>
+
+            <span>
+              ${year}/${month}/${day}
+            </span>
+
+          </div>
+
+
+          <div class="info-row">
+
+            <span class="info-label">
+              対戦相手
+            </span>
+
+            <span>
+              ${escapeHtml(
+                game.opponent
+              )}
+            </span>
+
+          </div>
+
+
+          <div class="info-row">
+
+            <span class="info-label">
+              得点
+            </span>
+
+            <span>
+              ${scoreFor}
+            </span>
+
+          </div>
+
+
+          <div class="info-row">
+
+            <span class="info-label">
+              失点
+            </span>
+
+            <span>
+              ${scoreAgainst}
+            </span>
+
+          </div>
+
+
+        </div>
+
+      </section>
+
+
+      <a
+        class="back-button"
+        href="index.html">
+
+        ← 試合一覧に戻る
+
+      </a>
+
+    `;
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    content.innerHTML = `
+
+      <div class="error">
+
+        試合情報を読み込めませんでした。
+
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text;
+
+  return div.innerHTML;
+
+}
+
+
+loadGame();
+
+</script>
+
+</body>
+</html>

@@ -28,10 +28,6 @@
       color: #171717;
     }
 
-    /* =========================
-       ヘッダー
-    ========================= */
-
     header {
       background:
         linear-gradient(
@@ -72,21 +68,11 @@
       font-size: 0.9rem;
     }
 
-
-    /* =========================
-       メイン
-    ========================= */
-
     main {
       max-width: 900px;
       margin: 0 auto;
       padding: 45px 16px 80px;
     }
-
-
-    /* =========================
-       セクション
-    ========================= */
 
     .section {
       margin-bottom: 55px;
@@ -113,24 +99,14 @@
       font-size: 1.5rem;
     }
 
-
-    /* =========================
-       年度
-    ========================= */
-
     .season-title {
       font-size: 1.6rem;
       margin: 0 0 18px;
     }
 
-
-    /* =========================
-       成績カード
-    ========================= */
-
     .stats {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 10px;
       margin-bottom: 22px;
     }
@@ -153,14 +129,9 @@
 
     .stat-value {
       display: block;
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 800;
     }
-
-
-    /* =========================
-       試合カード
-    ========================= */
 
     .game {
       background: white;
@@ -250,11 +221,6 @@
       margin: 0 4px;
     }
 
-
-    /* =========================
-       動画ボタン
-    ========================= */
-
     .video-button {
       display: block;
 
@@ -278,11 +244,6 @@
       opacity: 0.8;
     }
 
-
-    /* =========================
-       ローディング・エラー
-    ========================= */
-
     .loading {
       text-align: center;
       color: #777;
@@ -297,11 +258,6 @@
       line-height: 1.8;
     }
 
-
-    /* =========================
-       フッター
-    ========================= */
-
     footer {
       border-top: 1px solid #ddd;
       text-align: center;
@@ -309,11 +265,6 @@
       color: #999;
       font-size: 0.75rem;
     }
-
-
-    /* =========================
-       スマホ
-    ========================= */
 
     @media (max-width: 600px) {
 
@@ -347,13 +298,10 @@
       }
 
     }
-
   </style>
 </head>
 
-
 <body>
-
 
 <header>
 
@@ -375,7 +323,6 @@
 
 </header>
 
-
 <main>
 
   <div class="section-heading">
@@ -392,28 +339,15 @@
 
 </main>
 
-
 <footer>
-
   © 野澤ナイン
-
 </footer>
 
-
 <script>
-
-
-/* =========================
-   Apps Script URL
-========================= */
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycby1bvuObvvdzl6gqAzhlMQpENW7d6ZBWxz0ulKILTctJRZ9rUfZ4WzeS5TWRogfUMDt/exec";
 
-
-/* =========================
-   試合データ取得
-========================= */
 
 async function loadGames() {
 
@@ -484,7 +418,9 @@ async function loadGames() {
     /* 年度 */
 
     Object.keys(seasons)
+
       .sort((a, b) => b - a)
+
       .forEach(year => {
 
 
@@ -549,23 +485,42 @@ async function loadGames() {
 
         const winRate =
           gamesCount > 0
+
             ? (
                 wins /
                 gamesCount *
                 100
+
               ).toFixed(1)
+
             : "0.0";
 
 
-        const runDiff =
-          runsFor -
-          runsAgainst;
-        
-const averageScoreFor =
-  totalScoreFor / games.length;
+        /* 平均得点・平均失点 */
 
-const averageScoreAgainst =
-  totalScoreAgainst / games.length;
+        const averageScoreFor =
+          gamesCount > 0
+
+            ? (
+                runsFor /
+                gamesCount
+
+              ).toFixed(1)
+
+            : "0.0";
+
+
+        const averageScoreAgainst =
+          gamesCount > 0
+
+            ? (
+                runsAgainst /
+                gamesCount
+
+              ).toFixed(1)
+
+            : "0.0";
+
 
         /* 年度セクション */
 
@@ -573,6 +528,7 @@ const averageScoreAgainst =
           document.createElement(
             "section"
           );
+
 
         seasonElement.className =
           "section";
@@ -583,6 +539,7 @@ const averageScoreAgainst =
           <h3 class="season-title">
             ${year}年
           </h3>
+
 
           <div class="stats">
 
@@ -625,30 +582,30 @@ const averageScoreAgainst =
             </div>
 
 
-          <div class="stat">
+            <div class="stat">
 
-  <span class="stat-label">
-    平均得点
-  </span>
+              <span class="stat-label">
+                平均得点
+              </span>
 
-  <span class="stat-value">
-    ${averageScoreFor.toFixed(1)}
-  </span>
+              <span class="stat-value">
+                ${averageScoreFor}
+              </span>
 
-</div>
+            </div>
 
 
-<div class="stat">
+            <div class="stat">
 
-  <span class="stat-label">
-    平均失点
-  </span>
+              <span class="stat-label">
+                平均失点
+              </span>
 
-  <span class="stat-value">
-    ${averageScoreAgainst.toFixed(1)}
-  </span>
+              <span class="stat-value">
+                ${averageScoreAgainst}
+              </span>
 
-</div>
+            </div>
 
           </div>
 
@@ -726,89 +683,98 @@ const averageScoreAgainst =
             "game";
 
 
-        const detailUrl =
-  `game.html?date=${
-    new Date(game.date)
-      .toISOString()
-      .slice(0, 10)
-  }&opponent=${
-    encodeURIComponent(game.opponent)
-  }`;
+          const detailUrl =
 
-gameElement.innerHTML = `
+            `game.html?date=${
+              new Date(game.date)
+                .toISOString()
+                .slice(0, 10)
 
-  <a
-    href="${detailUrl}"
-    style="
-      display:block;
-      color:inherit;
-      text-decoration:none;
-    "
-  >
-
-    <div class="game-top">
-
-      <div class="date">
-
-        ${year}年
-        ${month}月
-        ${day}日
-
-      </div>
-
-      <div class="result-badge ${resultClass}">
-
-        ${resultText}
-
-      </div>
-
-    </div>
+            }&opponent=${
+              encodeURIComponent(
+                game.opponent
+              )
+            }`;
 
 
-    <div class="match">
+          gameElement.innerHTML = `
 
-      <div class="team">
-        野澤ナイン
-      </div>
+            <a
+              href="${detailUrl}"
+              style="
+                display:block;
+                color:inherit;
+                text-decoration:none;
+              "
+            >
 
+              <div class="game-top">
 
-      <div class="score">
+                <div class="date">
 
-        ${scoreFor}
+                  ${year}年
+                  ${month}月
+                  ${day}日
 
-        <span class="vs">
-          -
-        </span>
-
-        ${scoreAgainst}
-
-      </div>
-
-
-      <div class="team">
-
-        ${escapeHtml(game.opponent)}
-
-      </div>
-
-    </div>
+                </div>
 
 
-    <div
-      style="
-        text-align:center;
-        color:#777;
-        font-size:0.8rem;
-        margin-top:5px;
-      "
-    >
+                <div
+                  class="result-badge ${resultClass}"
+                >
 
-      試合詳細を見る →
+                  ${resultText}
 
-    </div>
+                </div>
 
-  </a>
+              </div>
 
+
+              <div class="match">
+
+                <div class="team">
+                  野澤ナイン
+                </div>
+
+
+                <div class="score">
+
+                  ${scoreFor}
+
+                  <span class="vs">
+                    -
+                  </span>
+
+                  ${scoreAgainst}
+
+                </div>
+
+
+                <div class="team">
+
+                  ${escapeHtml(
+                    game.opponent
+                  )}
+
+                </div>
+
+              </div>
+
+
+              <div
+                style="
+                  text-align:center;
+                  color:#777;
+                  font-size:0.8rem;
+                  margin-top:5px;
+                "
+              >
+
+                試合詳細を見る →
+
+              </div>
+
+            </a>
 
           `;
 
@@ -826,8 +792,8 @@ gameElement.innerHTML = `
 
       });
 
-
   }
+
 
   catch (error) {
 
@@ -849,9 +815,7 @@ gameElement.innerHTML = `
 }
 
 
-/* =========================
-   HTMLエスケープ
-========================= */
+/* HTMLエスケープ */
 
 function escapeHtml(text) {
 
@@ -868,15 +832,11 @@ function escapeHtml(text) {
 }
 
 
-/* =========================
-   実行
-========================= */
+/* 実行 */
 
 loadGames();
 
-
 </script>
-
 
 </body>
 </html>

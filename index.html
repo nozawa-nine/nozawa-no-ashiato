@@ -560,7 +560,12 @@ async function loadGames() {
         const runDiff =
           runsFor -
           runsAgainst;
+        
+const averageScoreFor =
+  totalScoreFor / games.length;
 
+const averageScoreAgainst =
+  totalScoreAgainst / games.length;
 
         /* 年度セクション */
 
@@ -620,18 +625,30 @@ async function loadGames() {
             </div>
 
 
-            <div class="stat">
+          <div class="stat">
 
-              <span class="stat-label">
-                得失点差
-              </span>
+  <span class="stat-label">
+    平均得点
+  </span>
 
-              <span class="stat-value">
-                ${runDiff >= 0 ? "+" : ""}
-                ${runDiff}
-              </span>
+  <span class="stat-value">
+    ${averageScoreFor.toFixed(1)}
+  </span>
 
-            </div>
+</div>
+
+
+<div class="stat">
+
+  <span class="stat-label">
+    平均失点
+  </span>
+
+  <span class="stat-value">
+    ${averageScoreAgainst.toFixed(1)}
+  </span>
+
+</div>
 
           </div>
 

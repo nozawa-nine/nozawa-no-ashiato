@@ -36,7 +36,8 @@ function formattedValue(p,col,isPitch){
 }
 function sortedPlayers(id,cols){
  const state=sortState[id];
- const indexed=latestPlayers.map((p,i)=>({p,i}));
+ const visiblePlayers=id==='pit' ? latestPlayers.filter(p=>Number(p.pitching?.G)>0) : latestPlayers;
+ const indexed=visiblePlayers.map((p,i)=>({p,i}));
  if(state.key===null)return indexed.map(x=>x.p);
  const col=cols[state.key],isPitch=id==='pit';
  indexed.sort((a,b)=>{

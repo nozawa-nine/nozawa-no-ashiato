@@ -1,90 +1,24 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>個人成績｜野澤の足跡</title>
-<style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Noto Sans JP','Yu Gothic',sans-serif;background:#f3f4f6;color:#171717}header{background:#111;color:#fff;text-align:center;padding:30px 16px}header a{color:#bbb;text-decoration:none;font-size:13px}header h1{margin:12px 0 0;font-size:24px}main{max-width:1150px;margin:auto;padding:28px 15px 70px}.card{background:#fff;border-radius:13px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px #0000000d}h2{font-size:18px;margin:0 0 15px;border-left:5px solid #222;padding-left:10px}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}select,button{padding:10px;border:1px solid #cbd5d1;border-radius:7px;background:white}button{background:#174b3b;color:#fff;border:0;cursor:pointer}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;white-space:nowrap;font-size:12px}th{min-width:52px}th:first-child{min-width:86px}th,td{border-bottom:1px solid #e1e5e2;padding:10px 9px;text-align:right}th{background:#eaf0ec}th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:#fff}th:first-child{background:#eaf0ec}th.sortable{cursor:pointer;user-select:none}th.sortable:hover{background:#dce9e1}th.sortable:focus-visible{outline:2px solid #174b3b;outline-offset:-2px}th.sortable[aria-sort="ascending"],th.sortable[aria-sort="descending"]{background:#d5e5dc}.sort-hint{font-size:12px;color:#666;margin:-5px 0 12px}.muted{font-size:12px;color:#666;line-height:1.8}.error{color:#a22}footer{text-align:center;color:#888;font-size:12px;padding:25px}</style></head><body>
+<style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Noto Sans JP','Yu Gothic',sans-serif;background:#f3f4f6;color:#171717}header{background:#111;color:#fff;text-align:center;padding:30px 16px}header a{color:#bbb;text-decoration:none;font-size:13px}header h1{margin:12px 0 0;font-size:24px}main{max-width:1150px;margin:auto;padding:28px 15px 70px}.card{background:#fff;border-radius:13px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px #0000000d}h2{font-size:18px;margin:0 0 15px;border-left:5px solid #222;padding-left:10px}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}select,button{padding:10px;border:1px solid #cbd5d1;border-radius:7px;background:white}button{background:#174b3b;color:#fff;border:0;cursor:pointer}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;white-space:nowrap;font-size:12px}th{min-width:52px}th:first-child{min-width:56px}th,td{border-bottom:1px solid #e1e5e2;padding:10px 9px;text-align:right}th{background:#eaf0ec}th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:#fff}th:first-child{background:#eaf0ec}th.sortable{cursor:pointer;user-select:none}th.sortable:hover{background:#dce9e1}th.sortable:focus-visible{outline:2px solid #174b3b;outline-offset:-2px}th.sortable[aria-sort="ascending"],th.sortable[aria-sort="descending"]{background:#d5e5dc}.sort-hint{font-size:12px;color:#666;margin:-5px 0 12px}.muted{font-size:12px;color:#666;line-height:1.8}.error{color:#a22}.player-link{color:#174b3b;font-weight:700;text-decoration:underline;text-underline-offset:3px}.player-link:focus-visible{outline:2px solid #174b3b}footer{text-align:center;color:#888;font-size:12px;padding:25px}</style></head><body>
 <header><a href="index.html">← 野澤の足跡に戻る</a><h1>個人成績</h1></header>
 <main><section class="card"><h2>集計範囲</h2><div class="controls"><label for="scope">期間</label><select id="scope"><option value="all">通算</option><option value="year">年度別</option></select><label for="year" id="yearLabel" hidden>年度</label><select id="year" hidden></select><button id="reload">集計する</button></div><p class="muted" id="status">読み込み中……</p><p class="muted">年度は1月〜12月。得点※は暫定値。「その他」の打席は集計対象外です。防御率は9回換算・7回換算を併記しています。</p></section>
-<section class="card"><h2>打撃・走塁成績</h2><p class="sort-hint">項目名をクリックすると並べ替えできます（降順 ⇄ 昇順）。</p><div class="scroll"><table id="bat"></table></div></section>
-<section class="card"><h2>投手成績</h2><p class="sort-hint">項目名をクリックすると並べ替えできます（降順 ⇄ 昇順）。</p><div class="scroll"><table id="pit"></table></div></section></main><footer>© 野澤ナイン</footer>
+<section class="card"><h2>打撃・走塁成績</h2><p class="sort-hint">初期表示は背番号順。項目名をクリックすると並べ替えできます（降順 ⇄ 昇順）。選手名から年度別成績へ移動できます。</p><div class="scroll"><table id="bat"></table></div></section>
+<section class="card"><h2>投手成績</h2><p class="sort-hint">初期表示は背番号順。項目名をクリックすると並べ替えできます（降順 ⇄ 昇順）。</p><div class="scroll"><table id="pit"></table></div></section></main><footer>© 野澤ナイン</footer>
 <script>
-// 公開用成績APIをデプロイした後、下の文字列を実際の /exec URLに変更する。
 const STATS_API_URL='https://script.google.com/macros/s/AKfycbywwCt64Kf-1AsbwuSbkH0Ch04REDeoViQ4C7vWLHPQHQ60QM4L5_2387irVW_sOlLMMQ/exec';
 const $=id=>document.getElementById(id);
 const fmt=n=>n===null||n===undefined?'---':Number(n).toFixed(3);
-// テーブルごとに並べ替え状態を保持する。成績の計算やAPIには影響しない。
 const sortState={bat:{key:null,dir:'desc'},pit:{key:null,dir:'desc'}};
 let latestPlayers=[];
-const battingCols=[
- ['選手','name'],['打席','PA'],['打数','AB'],['安打','H'],['二塁打','doubles'],['三塁打','triples'],
- ['本塁打','HR'],['打点','RBI'],['得点※','R'],['四球','BB'],['死球','HBP'],['三振','SO'],
- ['犠打','SH'],['犠飛','SF'],['打率','AVG',true],['出塁率','OBP',true],['長打率','SLG',true],
- ['OPS','OPS',true],['盗塁','SB'],['盗塁死','CS'],['盗塁成功率','stealRate',true]
-];
-const pitchingCols=[
- ['選手','name'],['登板','G'],['投球回','outs','ip'],['対戦打者','BF'],['被安打','H'],['被本塁打','HR'],
- ['与四球','BB'],['与死球','HBP'],['奪三振','SO'],['暴投','WP'],['ボーク','BK'],['失点','R'],
- ['自責点','ER'],['防御率(9回)','ERA9',true],['防御率(7回)','ERA7',true]
-];
-function rawValue(p,col,isPitch){
- if(col[1]==='name')return p.name;
- const obj=isPitch?p.pitching:p;
- return obj?.[col[1]];
-}
-function formattedValue(p,col,isPitch){
- const value=rawValue(p,col,isPitch);
- if(col[2]==='ip')return p.pitching.IP;
- return col[2]===true?fmt(value):(value??'');
-}
-function sortedPlayers(id,cols){
- const state=sortState[id];
- const visiblePlayers=id==='pit' ? latestPlayers.filter(p=>Number(p.pitching?.G)>0) : latestPlayers;
- const indexed=visiblePlayers.map((p,i)=>({p,i}));
- if(state.key===null)return indexed.map(x=>x.p);
- const col=cols[state.key],isPitch=id==='pit';
- indexed.sort((a,b)=>{
-   const x=rawValue(a.p,col,isPitch),y=rawValue(b.p,col,isPitch);
-   const missingX=x===null||x===undefined||x==='',missingY=y===null||y===undefined||y==='';
-   if(missingX!==missingY)return missingX?1:-1;
-   if(missingX)return a.i-b.i;
-   let cmp;
-   if(col[1]==='name')cmp=String(x).localeCompare(String(y),'ja');
-   else cmp=Number(x)-Number(y);
-   return cmp===0?a.i-b.i:(state.dir==='asc'?cmp:-cmp);
- });
- return indexed.map(x=>x.p);
-}
-function drawTable(id,cols){
- const t=$(id);t.replaceChildren();
- const thead=t.createTHead(),tr=thead.insertRow(),state=sortState[id];
- cols.forEach((col,i)=>{
-   const th=document.createElement('th');
-   const active=state.key===i;
-   th.textContent=col[0]+(active?(state.dir==='asc'?' ▲':' ▼'):'');
-   th.className='sortable';th.tabIndex=0;th.setAttribute('role','button');
-   th.setAttribute('aria-label',col[0]+'で並べ替え');
-   th.setAttribute('aria-sort',active?(state.dir==='asc'?'ascending':'descending'):'none');
-   const toggle=()=>{
-     if(state.key===i)state.dir=state.dir==='desc'?'asc':'desc';
-     else{state.key=i;state.dir=col[1]==='name'?'asc':'desc';}
-     drawTable(id,cols);
-     t.tHead.rows[0].cells[i].focus();
-   };
-   th.addEventListener('click',toggle);
-   th.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
-   tr.appendChild(th);
- });
- const body=t.createTBody();
- sortedPlayers(id,cols).forEach(p=>{
-   const row=body.insertRow();
-   cols.forEach(col=>{const td=row.insertCell();td.textContent=String(formattedValue(p,col,id==='pit'));});
- });
-}
-function render(data){
- $('status').textContent=`対象試合 ${data.gameCount}件 / 選手 ${data.players.length}人`;
- $('status').className='muted';
- latestPlayers=data.players;
- drawTable('bat',battingCols);
- drawTable('pit',pitchingCols);
-}
-async function load(){try{if(STATS_API_URL.startsWith('PASTE_'))throw Error('公開用成績APIのURLが未設定です');$('status').textContent='集計中……';const scope=$('scope').value,value=scope==='year'?$('year').value:'';const u=new URL(STATS_API_URL);u.searchParams.set('scope',scope);if(value)u.searchParams.set('value',value);const response=await fetch(u);if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();if(!data.ok)throw Error(data.error||'取得失敗');if(!$('year').options.length){data.years.forEach(y=>{const opt=document.createElement('option');opt.value=y;opt.textContent=y+'年';$('year').appendChild(opt)})}render(data)}catch(err){$('status').textContent='成績を取得できません: '+err.message;$('status').className='muted error';console.error(err)}}
+const battingCols=[['背番号','number'],['選手','name'],['打席','PA'],['打数','AB'],['安打','H'],['二塁打','doubles'],['三塁打','triples'],['本塁打','HR'],['打点','RBI'],['得点※','R'],['四球','BB'],['死球','HBP'],['三振','SO'],['犠打','SH'],['犠飛','SF'],['打率','AVG',true],['出塁率','OBP',true],['長打率','SLG',true],['OPS','OPS',true],['盗塁','SB'],['盗塁死','CS'],['盗塁成功率','stealRate',true]];
+const pitchingCols=[['背番号','number'],['選手','name'],['登板','G'],['投球回','outs','ip'],['対戦打者','BF'],['被安打','H'],['被本塁打','HR'],['与四球','BB'],['与死球','HBP'],['奪三振','SO'],['暴投','WP'],['ボーク','BK'],['失点','R'],['自責点','ER'],['防御率(9回)','ERA9',true],['防御率(7回)','ERA7',true]];
+function rawValue(p,col,isPitch){if(col[1]==='name'||col[1]==='number')return p[col[1]];const obj=isPitch?p.pitching:p;return obj?.[col[1]];}
+function formattedValue(p,col,isPitch){const value=rawValue(p,col,isPitch);if(col[2]==='ip')return p.pitching.IP;if(col[1]==='number')return value??'---';return col[2]===true?fmt(value):(value??'');}
+function numberOrder(a,b){const x=a.number,y=b.number;if(x===null||x===undefined)return y===null||y===undefined?0:1;if(y===null||y===undefined)return -1;return Number(x)-Number(y);}
+function sortedPlayers(id,cols){const state=sortState[id];const visiblePlayers=(id==='pit'?latestPlayers.filter(p=>Number(p.pitching?.G)>0):latestPlayers).slice().sort(numberOrder);const indexed=visiblePlayers.map((p,i)=>({p,i}));if(state.key===null)return indexed.map(x=>x.p);const col=cols[state.key],isPitch=id==='pit';indexed.sort((a,b)=>{const x=rawValue(a.p,col,isPitch),y=rawValue(b.p,col,isPitch);const missingX=x===null||x===undefined||x==='',missingY=y===null||y===undefined||y==='';if(missingX!==missingY)return missingX?1:-1;if(missingX)return a.i-b.i;const cmp=col[1]==='name'?String(x).localeCompare(String(y),'ja'):Number(x)-Number(y);return cmp===0?a.i-b.i:(state.dir==='asc'?cmp:-cmp);});return indexed.map(x=>x.p);}
+function drawTable(id,cols){const t=$(id);t.replaceChildren();const thead=t.createTHead(),tr=thead.insertRow(),state=sortState[id];cols.forEach((col,i)=>{const th=document.createElement('th'),active=state.key===i;th.textContent=col[0]+(active?(state.dir==='asc'?' ▲':' ▼'):'');th.className='sortable';th.tabIndex=0;th.setAttribute('role','button');th.setAttribute('aria-label',col[0]+'で並べ替え');th.setAttribute('aria-sort',active?(state.dir==='asc'?'ascending':'descending'):'none');const toggle=()=>{if(state.key===i)state.dir=state.dir==='desc'?'asc':'desc';else{state.key=i;state.dir=(col[1]==='name'||col[1]==='number')?'asc':'desc';}drawTable(id,cols);t.tHead.rows[0].cells[i].focus();};th.addEventListener('click',toggle);th.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});tr.appendChild(th);});const body=t.createTBody();sortedPlayers(id,cols).forEach(p=>{const row=body.insertRow();cols.forEach(col=>{const td=row.insertCell();if(col[1]==='name'){const a=document.createElement('a');a.href='player.html?id='+encodeURIComponent(p.id);a.className='player-link';a.textContent=p.name;td.appendChild(a);}else td.textContent=String(formattedValue(p,col,id==='pit'));});});}
+function render(data){$('status').textContent=`対象試合 ${data.gameCount}件 / 選手 ${data.players.length}人`;$('status').className='muted';latestPlayers=data.players;drawTable('bat',battingCols);drawTable('pit',pitchingCols);}
+async function load(){try{if(STATS_API_URL.startsWith('PASTE_'))throw Error('公開用成績APIのURLが未設定です');$('status').textContent='集計中……';const scope=$('scope').value,value=scope==='year'?$('year').value:'';const u=new URL(STATS_API_URL);u.searchParams.set('scope',scope);if(value)u.searchParams.set('value',value);const response=await fetch(u);if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();if(!data.ok)throw Error(data.error||'取得失敗');if(!$('year').options.length){data.years.forEach(y=>{const opt=document.createElement('option');opt.value=y;opt.textContent=y+'年';$('year').appendChild(opt);});}render(data);}catch(err){$('status').textContent='成績を取得できません: '+err.message;$('status').className='muted error';console.error(err);}}
 $('scope').addEventListener('change',()=>{const show=$('scope').value==='year';$('year').hidden=!show;$('yearLabel').hidden=!show});$('reload').addEventListener('click',load);load();
 </script></body></html>

@@ -50,17 +50,32 @@ function scorebookResultClass(result){
  if(/^(四球|死球|敬遠|申告敬遠)$/.test(value))return 'walk-result';
  return '';
 }
-// 公開APIに打球方向が含まれる場合のみ表示。未記録の方向は補完しない。
+// 打球方向は管理画面の9種類のみを変換する。未登録は推測しない。
 function scorebookDirection(p){
- const value=p.direction??p.hitDirection??p.battedBallDirection??p['打球方向'];
- return typeof value==='string'?value.trim():'';
+ const value=String(p.direction??'').trim();
+ return ['投','捕','一','二','三','遊','左','中','右'].includes(value)?value:'';
+}
+function scorebookLabel(result,direction){
+ if(!direction)return result;
+ const hitLabels={'単打':'安','一塁打':'安','二塁打':'二','三塁打':'三','本塁打':'本'};
+ if(Object.prototype.hasOwnProperty.call(hitLabels,result))return direction+hitLabels[result];
+ if(result==='ゴロ')return direction+'ゴロ';
+ if(result==='フライ')return direction+'飛';
+ if(result==='失策出塁')return direction+'失';
+ if(result==='野選')return direction+'野選';
+ if(result==='併殺打')return direction+'併';
+ if(result==='犠飛')return direction+'犠飛';
+ if(result==='犠打')return direction+'犠打';
+ return result;
 }
 function scorebookAppearance(p,showPlayer,names){
- const result=String(p.result||'未入力');
+ const result=String(p.result||'未入力').trim();
  const klass=scorebookResultClass(result);
  const direction=scorebookDirection(p);
+ const label=scorebookLabel(result,direction);
  const playerName=names.get(String(p.playerId))||p.playerId;
- return `<span class="cell-event" title="${escapeHtml(playerName)}"><span class="${klass}">${escapeHtml(result)}</span>${direction?`<span class="hit-direction">${escapeHtml(direction)}</span>`:''}${showPlayer?` <small>${escapeHtml(playerName)}</small>`:''}</span>`;
+ const details=direction?`打球方向：${direction}／打席結果：${result}`:`打席結果：${result}`;
+ return `<span class="cell-event" title="${escapeHtml(playerName+'／'+details)}"><span class="${klass}">${escapeHtml(label)}</span>${showPlayer?` <small>${escapeHtml(playerName)}</small>`:''}</span>`;
 }
 async function loadScorebook(gameId){
  const target=document.getElementById('scorebook');

@@ -181,14 +181,16 @@ function renderPitching(data){
  const total=Object.fromEntries(keys.map(k=>[k,0]));
  const number=(v)=>{const n=Number(v);return Number.isSafeInteger(n)&&n>=0?n:0;};
  const innings=(outs)=>Math.floor(outs/3)+'.'+(outs%3);
- const values=(r)=>[number(r.battersFaced),innings(number(r.outs)),number(r.hits),number(r.homeRuns),number(r.walks),number(r.hitByPitch),number(r.strikeouts),number(r.wildPitches),number(r.balks),number(r.runs),number(r.earnedRuns)];
+ const values=(r)=>[r.pitchCount==null||r.pitchCount===''?'—':number(r.pitchCount),number(r.battersFaced),innings(number(r.outs)),number(r.hits),number(r.homeRuns),number(r.walks),number(r.hitByPitch),number(r.strikeouts),number(r.wildPitches),number(r.balks),number(r.runs),number(r.earnedRuns)];
  const rows=records.map(r=>{
   keys.forEach(k=>total[k]+=number(r[k]));
+  if(r.pitchCount!=null&&r.pitchCount!==''&&Number.isSafeInteger(Number(r.pitchCount))&&Number(r.pitchCount)>=0){total.pitchCount=(total.pitchCount||0)+Number(r.pitchCount);total.knownPitchCount=(total.knownPitchCount||0)+1;}
   const name=names.get(String(r.playerId))||String(r.playerId||'不明');
   return `<tr><td>${escapeHtml(name)}</td>${values(r).map(v=>`<td>${v}</td>`).join('')}</tr>`;
  }).join('');
+ total.pitchCount=total.knownPitchCount===records.length?total.pitchCount:null;
  const totalRow=`<tr class="team-total"><th scope="row">チーム計</th>${values(total).map(v=>`<td>${v}</td>`).join('')}</tr>`;
- const headers=['投手','打者','投球回','被安打','被本塁打','与四球','与死球','奪三振','暴投','ボーク','失点','自責点'];
+ const headers=['投手','投球数','打者','投球回','被安打','被本塁打','与四球','与死球','奪三振','暴投','ボーク','失点','自責点'];
  target.innerHTML=`<div class="pitching-scroll"><table class="pitching-table"><thead><tr>${headers.map(h=>`<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${rows}${totalRow}</tbody></table></div>`;
 }
 

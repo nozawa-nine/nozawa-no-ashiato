@@ -8,32 +8,17 @@
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif;background:#f3f4f6;color:#171717}header{background:#111;color:white;padding:35px 20px;text-align:center}header a{color:#aaa;text-decoration:none;font-size:.85rem}header a:hover{color:white}header h1{margin:15px 0 0;font-size:1.7rem;letter-spacing:.08em}main{max-width:850px;margin:0 auto;padding:35px 16px 70px}.date{text-align:center;color:#777;font-size:.9rem;margin-bottom:15px}.result{background:white;border-radius:14px;padding:30px 20px;text-align:center;box-shadow:0 2px 10px #0000000d}.teams{display:flex;align-items:center;justify-content:center;gap:25px}.team{flex:1;font-size:1.1rem;font-weight:700}.score{font-size:2.5rem;font-weight:900;white-space:nowrap}.vs{color:#aaa;font-size:.8rem;margin:0 5px}.result-label{display:inline-block;margin-top:18px;padding:5px 12px;border-radius:5px;font-size:.75rem;font-weight:800}.win{background:#e3f2e9;color:#176b3a}.lose{background:#fbe5e3;color:#b3261e}.draw{background:#eee;color:#666}.section{margin-top:30px}.section-title{font-size:1.2rem;border-left:5px solid #222;padding-left:10px;margin-bottom:15px}.card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 10px #0000000d}.video-button{display:block;padding:13px 18px;background:#222;color:white;text-align:center;text-decoration:none;border-radius:7px;font-size:.9rem;font-weight:600}.memo{line-height:1.9;white-space:pre-wrap}.photo{width:100%;display:block;border-radius:10px}.photo-link{display:block}.info-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee}.info-row:last-child{border-bottom:none}.info-label{color:#777}.loading{text-align:center;color:#777;padding:50px 20px}.error{background:white;padding:25px;border-radius:12px;text-align:center;color:#b3261e}.back-button{display:block;margin-top:30px;text-align:center;color:#555;text-decoration:none;font-size:.9rem}footer{border-top:1px solid #ddd;text-align:center;padding:30px 20px;color:#999;font-size:.75rem}.scorebook-scroll{overflow-x:auto}.scorebook-table .hit-result{color:#d82020;font-weight:700}.scorebook-table .walk-result{color:#215ec1;font-weight:600}.scorebook-table .hit-direction{font-size:.76rem;margin-top:2px;color:#b21c1c}.scorebook-table .cell-event{line-height:1.4}.scorebook-table th,.scorebook-table td{border-color:#b9c5d0}.scorebook-table{border-collapse:collapse;min-width:650px;width:100%;font-size:.85rem}.scorebook-table th,.scorebook-table td{border:1px solid #e4e9e6;padding:10px 8px;text-align:center;vertical-align:top}.scorebook-table th{background:#eaf0ec;white-space:nowrap}.scorebook-table td.name{text-align:left;white-space:nowrap}.scorebook-table .cell-events{display:flex;flex-direction:column;gap:4px}.scorebook-table .cell-event{display:block;white-space:nowrap}.scorebook-table .sub-name{font-size:.78rem;color:#52635c;margin-top:3px}.scorebook-notes{font-size:.82rem;line-height:1.8;color:#555;margin-top:14px}.scorebook-notes ul{padding-left:1.4em;margin:6px 0}.scorebook-status{color:#666;font-size:.9rem;line-height:1.8}@media(max-width:600px){.teams{gap:8px}.team{font-size:.9rem}.score{font-size:2rem}.card{padding:15px}}
 .scorebook-table{min-width:980px;font-size:.78rem}.scorebook-table th,.scorebook-table td{padding:8px 5px;vertical-align:middle}.scorebook-table .stat-col{min-width:36px;font-variant-numeric:tabular-nums}.scorebook-table .player-col{min-width:105px}.scorebook-table .inning-col{min-width:68px}.scorebook-table .sub-row td,.scorebook-table .sub-row th{border-top:1px dashed #aebbc4}.scorebook-table .sub-row .name{padding-left:15px}.scorebook-table .team-total{background:#edf1f3;font-weight:700}.scorebook-table .cell-events{gap:3px}
 
-
-/* 選手名の列を60pxにする */
-.scorebook-table th:nth-child(2),
-.scorebook-table td.name {
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
-  white-space: nowrap;
-}
-
-/* イニングの列を44pxにする */
-.scorebook-table th:nth-child(n+8),
-.scorebook-table td:nth-child(n+8) {
-  width: 44px;
-  min-width: 44px;
-  max-width: 44px;
-  padding: 8px 3px;
-}
-
-/* 表全体を内容に合わせてコンパクトにする */
-.scorebook-table {
-  min-width: 0;
-  width: max-content;
-}
-
-
+/* コンパクトなスコアブック列幅（現在の表示設定） */
+.scorebook-table{min-width:0;width:max-content}
+.scorebook-table th:nth-child(2),.scorebook-table td.name{width:60px;min-width:60px;max-width:60px;white-space:nowrap}
+.scorebook-table th:nth-child(n+8),.scorebook-table td:nth-child(n+8){width:44px;min-width:44px;max-width:44px;padding:8px 3px}
+/* 投手成績 */
+.pitching-scroll{overflow-x:auto}
+.pitching-table{border-collapse:collapse;width:max-content;min-width:100%;font-size:.78rem;font-variant-numeric:tabular-nums}
+.pitching-table th,.pitching-table td{border:1px solid #dce3eb;padding:9px 8px;text-align:center;white-space:nowrap}
+.pitching-table thead th{background:#2d62a3;color:white;font-weight:700}
+.pitching-table td:first-child{text-align:left}
+.pitching-table .team-total{background:#edf1f3;font-weight:700}
 </style>
 </head>
 <body>
@@ -62,12 +47,13 @@ async function loadGame(){
    <div class="date">${year}年${month}月${day}日</div>
    <div class="result"><div class="teams"><div class="team">野澤ナイン</div><div class="score">${scoreFor}<span class="vs"> - </span>${scoreAgainst}</div><div class="team">${escapeHtml(game.opponent)}</div></div><div class="result-label ${resultClass}">${resultText}</div></div>
    <section class="section"><h2 class="section-title">スコアブック</h2><div class="card" id="scorebook"><p class="scorebook-status">スコアブックを読み込んでいます……</p></div></section>
+   <section class="section"><h2 class="section-title">投手成績</h2><div class="card" id="pitching"><p class="scorebook-status">投手成績を読み込んでいます……</p></div></section>
    ${video?`<section class="section"><h2 class="section-title">試合動画</h2><div class="card"><a class="video-button" href="${escapeHtml(video)}" target="_blank" rel="noopener noreferrer">YouTubeで試合を見る</a></div></section>`:''}
    ${game.memo?`<section class="section"><h2 class="section-title">試合メモ</h2><div class="card"><div class="memo">${escapeHtml(game.memo)}</div></div></section>`:''}
    ${photo?`<section class="section"><h2 class="section-title">試合写真</h2><div class="card"><a class="photo-link" href="${escapeHtml(photo)}" target="_blank" rel="noopener noreferrer"><img class="photo" src="${escapeHtml(photo)}" alt="試合写真" loading="lazy"></a></div></section>`:''}
    <section class="section"><h2 class="section-title">試合情報</h2><div class="card"><div class="info-row"><span class="info-label">試合日</span><span>${year}/${month}/${day}</span></div><div class="info-row"><span class="info-label">対戦相手</span><span>${escapeHtml(game.opponent)}</span></div><div class="info-row"><span class="info-label">試合会場</span><span>${escapeHtml(game.venue||'未登録')}</span></div><div class="info-row"><span class="info-label">得点</span><span>${scoreFor}</span></div><div class="info-row"><span class="info-label">失点</span><span>${scoreAgainst}</span></div></div></section>
    <a class="back-button" href="index.html">← 試合一覧に戻る</a>`;
-  if(!/^G\d+$/.test(String(game.id||''))){document.getElementById('scorebook').innerHTML='<p class="scorebook-status">試合IDを取得できません。試合情報APIに id を追加するとスコアブックを表示できます。</p>';return;}
+  if(!/^G\d+$/.test(String(game.id||''))){document.getElementById('scorebook').innerHTML='<p class="scorebook-status">試合IDを取得できません。試合情報APIに id を追加するとスコアブックを表示できます。</p>';document.getElementById('pitching').innerHTML='<p class="scorebook-status">試合IDを取得できません。</p>';return;}
   await loadScorebook(String(game.id));
  }catch(error){console.error(error);content.innerHTML='<div class="error">試合情報を読み込めませんでした。</div>';}
 }
@@ -130,6 +116,7 @@ async function loadScorebook(gameId){
   const data=await res.json();
   if(data.ok!==true||String(data.gameId)!==gameId)throw new Error(data.error||'APIの応答が不正です');
   const names=new Map((data.players||[]).map(p=>[String(p.id),String(p.name)]));
+  renderPitching(data);
   const starters=(data.starters||[]).slice().sort((a,b)=>Number(a.order)-Number(b.order));
   const pa=(data.plateAppearances||[]).slice().sort((a,b)=>Number(a.inning)-Number(b.inning)||Number(a.sequence)-Number(b.sequence));
   const events=(data.events||[]).slice().sort((a,b)=>Number(a.sequence)-Number(b.sequence));
@@ -176,8 +163,35 @@ async function loadScorebook(gameId){
   const unknown=pa.filter(p=>!Number.isInteger(Number(p.order))||Number(p.order)<1||Number(p.order)>9).length;
   const unassignedNote=unassignedSteals.length?`<p>※ 打順が特定できない選手の盗塁：${unassignedSteals.map(([id,n])=>escapeHtml(names.get(id)||id)+' '+n+'件').join('、')}。チーム計には含めています。</p>`:'';
   target.innerHTML=`<div class="scorebook-scroll"><table class="scorebook-table"><thead><tr><th>打順</th><th class="player-col">選手</th><th>打数</th><th>得点</th><th>安打</th><th>打点</th><th>盗塁</th>${innings.map(n=>`<th>${n}回</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div><div class="scorebook-notes">${pa.length?'※ 同じイニングに複数打席がある場合は、同じ欄に順番に表示します。':'※ 打席記録は未登録です。'}${!hasRunning?'<p>※ 盗塁欄は公開APIが走塁記録に未対応のため「—」と表示しています。</p>':''}${unassignedNote}${subNotes?`<p>選手交代履歴</p><ul>${subNotes}</ul>`:''}${unknown?`<p>打順が不明な打席記録：${unknown}件（チーム計に含まれません）</p>`:''}<p>得点は現在の打席記録の帰属に従います。代走の得点は正しく帰属しない場合があります。「その他」の打席は成績集計から除外します。守備位置変更はこの表には反映していません。交代の正確な打席前後関係は推測していません。</p></div>`;
- }catch(error){console.error(error);target.innerHTML='<p class="scorebook-status">スコアブックを取得できませんでした。公開APIの設定を確認してください。</p>';}
+ }catch(error){console.error(error);target.innerHTML='<p class="scorebook-status">スコアブックを取得できませんでした。公開APIの設定を確認してください。</p>';const pitching=document.getElementById('pitching');if(pitching)pitching.innerHTML='<p class="scorebook-status">投手成績を取得できませんでした。</p>';}
 }
+
+// 公開APIの投手記録を登板順で表示する。投球数は保存されていないため表示しない。
+function renderPitching(data){
+ const target=document.getElementById('pitching');
+ if(!target)return;
+ if(!Array.isArray(data.pitchingRecords)){
+  target.innerHTML='<p class="scorebook-status">公開APIが投手記録に未対応です。APIを更新してください。</p>';
+  return;
+ }
+ const records=data.pitchingRecords.slice().sort((a,b)=>Number(a.appearanceOrder)-Number(b.appearanceOrder));
+ if(!records.length){target.innerHTML='<p class="scorebook-status">投手成績はまだ登録されていません。</p>';return;}
+ const names=new Map((data.players||[]).map(p=>[String(p.id),String(p.name)]));
+ const keys=['battersFaced','outs','hits','homeRuns','walks','hitByPitch','strikeouts','wildPitches','balks','runs','earnedRuns'];
+ const total=Object.fromEntries(keys.map(k=>[k,0]));
+ const number=(v)=>{const n=Number(v);return Number.isSafeInteger(n)&&n>=0?n:0;};
+ const innings=(outs)=>Math.floor(outs/3)+'.'+(outs%3);
+ const values=(r)=>[number(r.battersFaced),innings(number(r.outs)),number(r.hits),number(r.homeRuns),number(r.walks),number(r.hitByPitch),number(r.strikeouts),number(r.wildPitches),number(r.balks),number(r.runs),number(r.earnedRuns)];
+ const rows=records.map(r=>{
+  keys.forEach(k=>total[k]+=number(r[k]));
+  const name=names.get(String(r.playerId))||String(r.playerId||'不明');
+  return `<tr><td>${escapeHtml(name)}</td>${values(r).map(v=>`<td>${v}</td>`).join('')}</tr>`;
+ }).join('');
+ const totalRow=`<tr class="team-total"><th scope="row">チーム計</th>${values(total).map(v=>`<td>${v}</td>`).join('')}</tr>`;
+ const headers=['投手','打者','投球回','被安打','被本塁打','与四球','与死球','奪三振','暴投','ボーク','失点','自責点'];
+ target.innerHTML=`<div class="pitching-scroll"><table class="pitching-table"><thead><tr>${headers.map(h=>`<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${rows}${totalRow}</tbody></table></div>`;
+}
+
 loadGame();
 </script>
 </body>

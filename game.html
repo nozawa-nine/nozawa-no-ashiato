@@ -47,6 +47,7 @@ async function loadGame(){
   content.innerHTML=`
    <div class="date">${year}年${month}月${day}日</div>
    <div class="result"><div class="teams"><div class="team">野澤ナイン</div><div class="score">${scoreFor}<span class="vs"> - </span>${scoreAgainst}</div><div class="team">${escapeHtml(game.opponent)}</div></div><div class="result-label ${resultClass}">${resultText}</div></div>
+   <section class="section"><h2 class="section-title">ラインスコア</h2><div class="card" id="lineScore"><p class="scorebook-status">ラインスコアを読み込んでいます……</p></div></section>
    <section class="section"><h2 class="section-title">スコアブック</h2><div class="card" id="scorebook"><p class="scorebook-status">スコアブックを読み込んでいます……</p></div></section>
    <section class="section"><h2 class="section-title">投手成績</h2><div class="card" id="pitching"><p class="scorebook-status">投手成績を読み込んでいます……</p></div></section>
    ${video?`<section class="section"><h2 class="section-title">試合動画</h2><div class="card"><a class="video-button" href="${escapeHtml(video)}" target="_blank" rel="noopener noreferrer">YouTubeで試合を見る</a></div></section>`:''}
@@ -118,6 +119,7 @@ async function loadScorebook(gameId){
   if(data.ok!==true||String(data.gameId)!==gameId)throw new Error(data.error||'APIの応答が不正です');
   const names=new Map((data.players||[]).map(p=>[String(p.id),String(p.name)]));
   renderPitching(data);
+  renderLineScore(data);
   const starters=(data.starters||[]).slice().sort((a,b)=>Number(a.order)-Number(b.order));
   const pa=(data.plateAppearances||[]).slice().sort((a,b)=>Number(a.inning)-Number(b.inning)||Number(a.sequence)-Number(b.sequence));
   const events=(data.events||[]).slice().sort((a,b)=>Number(a.sequence)-Number(b.sequence));
@@ -171,7 +173,7 @@ async function loadScorebook(gameId){
   const unknown=pa.filter(p=>!Number.isInteger(Number(p.order))||Number(p.order)<1||Number(p.order)>9).length;
   const unassignedNote=unassignedSteals.length?`<p>※ 打順が特定できない選手の盗塁：${unassignedSteals.map(([id,n])=>escapeHtml(names.get(id)||id)+' '+n+'件').join('、')}。チーム計には含めています。</p>`:'';
   target.innerHTML=`<div class="scorebook-scroll"><table class="scorebook-table"><thead><tr><th>打順</th><th class="player-col">選手</th><th>打数</th><th>安打</th><th>打点</th><th>盗塁</th>${innings.map(n=>`<th>${n}回</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div><div class="scorebook-notes">${pa.length?'※ 同じイニングに複数打席がある場合は、同じ欄に順番に表示します。':'※ 打席記録は未登録です。'}${!hasRunning?'<p>※ 盗塁欄は公開APIが走塁記録に未対応のため「—」と表示しています。</p>':''}${unassignedNote}${subNotes?`<p>選手交代履歴</p><ul>${subNotes}</ul>`:''}${unknown?`<p>打順が不明な打席記録：${unknown}件（チーム計に含まれません）</p>`:''}<p>チーム計の各イニングの得点は、そのイニングの打席記録に登録された得点の合計です。実際の得点イニングと異なる場合や、代走の得点が正しく帰属しない場合があります。「その他」の打席は成績集計から除外します。守備位置変更はこの表には反映していません。交代の正確な打席前後関係は推測していません。</p></div>`;
- }catch(error){console.error(error);target.innerHTML='<p class="scorebook-status">スコアブックを取得できませんでした。公開APIの設定を確認してください。</p>';const pitching=document.getElementById('pitching');if(pitching)pitching.innerHTML='<p class="scorebook-status">投手成績を取得できませんでした。</p>';}
+ }catch(error){console.error(error);target.innerHTML='<p class="scorebook-status">スコアブックを取得できませんでした。公開APIの設定を確認してください。</p>';const lineScore=document.getElementById('lineScore');if(lineScore)lineScore.innerHTML='<p class="scorebook-status">ラインスコアを取得できませんでした。</p>';const pitching=document.getElementById('pitching');if(pitching)pitching.innerHTML='<p class="scorebook-status">投手成績を取得できませんでした。</p>';}
 }
 
 

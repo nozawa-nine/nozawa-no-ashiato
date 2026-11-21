@@ -19,6 +19,7 @@
 .pitching-table thead th{background:#2d62a3;color:white;font-weight:700}
 .pitching-table td:first-child{text-align:left}
 .pitching-table .team-total{background:#edf1f3;font-weight:700}
+.linescore-scroll{overflow-x:auto}.linescore-table{border-collapse:collapse;width:max-content;min-width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}.linescore-table th,.linescore-table td{border:1px solid #dce3eb;padding:10px 11px;text-align:center;white-space:nowrap}.linescore-table thead th{background:#2d62a3;color:#fff}.linescore-table tbody th{text-align:left;min-width:115px}.linescore-table .total{font-weight:800;background:#edf1f3}.linescore-note{font-size:.8rem;color:#555;line-height:1.7;margin-top:12px}
 </style>
 </head>
 <body>
@@ -53,7 +54,7 @@ async function loadGame(){
    ${photo?`<section class="section"><h2 class="section-title">試合写真</h2><div class="card"><a class="photo-link" href="${escapeHtml(photo)}" target="_blank" rel="noopener noreferrer"><img class="photo" src="${escapeHtml(photo)}" alt="試合写真" loading="lazy"></a></div></section>`:''}
    <section class="section"><h2 class="section-title">試合情報</h2><div class="card"><div class="info-row"><span class="info-label">試合日</span><span>${year}/${month}/${day}</span></div><div class="info-row"><span class="info-label">対戦相手</span><span>${escapeHtml(game.opponent)}</span></div><div class="info-row"><span class="info-label">試合会場</span><span>${escapeHtml(game.venue||'未登録')}</span></div><div class="info-row"><span class="info-label">得点</span><span>${scoreFor}</span></div><div class="info-row"><span class="info-label">失点</span><span>${scoreAgainst}</span></div></div></section>
    <a class="back-button" href="index.html">← 試合一覧に戻る</a>`;
-  if(!/^G\d+$/.test(String(game.id||''))){document.getElementById('scorebook').innerHTML='<p class="scorebook-status">試合IDを取得できません。試合情報APIに id を追加するとスコアブックを表示できます。</p>';document.getElementById('pitching').innerHTML='<p class="scorebook-status">試合IDを取得できません。</p>';return;}
+  if(!/^G\d+$/.test(String(game.id||''))){document.getElementById('lineScore').textContent='試合IDを取得できません。';document.getElementById('scorebook').innerHTML='<p class="scorebook-status">試合IDを取得できません。試合情報APIに id を追加するとスコアブックを表示できます。</p>';document.getElementById('pitching').innerHTML='<p class="scorebook-status">試合IDを取得できません。</p>';return;}
   await loadScorebook(String(game.id));
  }catch(error){console.error(error);content.innerHTML='<div class="error">試合情報を読み込めませんでした。</div>';}
 }
@@ -171,6 +172,40 @@ async function loadScorebook(gameId){
   const unassignedNote=unassignedSteals.length?`<p>※ 打順が特定できない選手の盗塁：${unassignedSteals.map(([id,n])=>escapeHtml(names.get(id)||id)+' '+n+'件').join('、')}。チーム計には含めています。</p>`:'';
   target.innerHTML=`<div class="scorebook-scroll"><table class="scorebook-table"><thead><tr><th>打順</th><th class="player-col">選手</th><th>打数</th><th>安打</th><th>打点</th><th>盗塁</th>${innings.map(n=>`<th>${n}回</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div><div class="scorebook-notes">${pa.length?'※ 同じイニングに複数打席がある場合は、同じ欄に順番に表示します。':'※ 打席記録は未登録です。'}${!hasRunning?'<p>※ 盗塁欄は公開APIが走塁記録に未対応のため「—」と表示しています。</p>':''}${unassignedNote}${subNotes?`<p>選手交代履歴</p><ul>${subNotes}</ul>`:''}${unknown?`<p>打順が不明な打席記録：${unknown}件（チーム計に含まれません）</p>`:''}<p>チーム計の各イニングの得点は、そのイニングの打席記録に登録された得点の合計です。実際の得点イニングと異なる場合や、代走の得点が正しく帰属しない場合があります。「その他」の打席は成績集計から除外します。守備位置変更はこの表には反映していません。交代の正確な打席前後関係は推測していません。</p></div>`;
  }catch(error){console.error(error);target.innerHTML='<p class="scorebook-status">スコアブックを取得できませんでした。公開APIの設定を確認してください。</p>';const pitching=document.getElementById('pitching');if(pitching)pitching.innerHTML='<p class="scorebook-status">投手成績を取得できませんでした。</p>';}
+}
+
+
+function renderLineScore(data){
+ const target=document.getElementById('lineScore');if(!target)return;
+ const ls=data.lineScore;
+ if(!ls){target.innerHTML='<p class="scorebook-status">ラインスコアは未登録です。</p>';return;}
+ const pa=Array.isArray(data.plateAppearances)?data.plateAppearances:[];
+ const pitchers=Array.isArray(data.pitchingRecords)?data.pitchingRecords:[];
+ const valid=new Set([...SB_AB_RESULTS,...SB_EXCLUDED_RESULTS]);
+ const innings=Math.min(15,Math.max(1,Number(ls.finalInning)||7));
+ const ownRuns=Array.from({length:innings},()=>0);
+ for(const p of pa){const n=Number(p.inning);if(n>=1&&n<=innings&&valid.has(String(p.result||''))){const r=Number(p.runs);if(Number.isSafeInteger(r)&&r>=0)ownRuns[n-1]+=r;}}
+ const oppRuns=Array.from({length:innings},(_,i)=>ls.opponentRuns?.[i]??null);
+ const ownIsTop=ls.homeAway!=='後攻';
+ const finalHalf=String(ls.finalHalf||'裏終了');
+ const endHalf=finalHalf.startsWith('表')?'表':'裏';
+ const ownHalf=ownIsTop?'表':'裏';const oppHalf=ownIsTop?'裏':'表';
+ const isPlayed=(n,half)=>n<innings||n===innings&&(half===endHalf||endHalf==='裏'&&half==='表');
+ const ownDisplay=ownRuns.map((r,i)=>isPlayed(i+1,ownHalf)?r:'—');
+ const oppDisplay=oppRuns.map((r,i)=>isPlayed(i+1,oppHalf)?(r===null?'未入力':r):'—');
+ const hits=pa.filter(p=>SB_HIT_RESULTS.has(String(p.result||''))).length;
+ const oppHits=pitchers.length?pitchers.reduce((s,p)=>s+(Number(p.hits)||0),0):'—';
+ const ownE=Number(ls.ourErrors)||0;
+ const opponentBase=pa.filter(p=>String(p.result)==='失策出塁').length;
+ const oppE=Math.max(0,opponentBase+(Number(ls.opponentAdjust)||0));
+ const ownTotal=ls.officialOur==null?ownRuns.reduce((a,b)=>a+b,0):ls.officialOur;
+ const oppTotal=ls.officialOpponent==null?oppRuns.reduce((a,b)=>a+(b??0),0):ls.officialOpponent;
+ const cols=Array.from({length:innings},(_,i)=>`<th>${i+1}</th>`).join('');
+ const row=(name,scores,total,h,e)=>`<tr><th scope="row">${escapeHtml(name)}</th>${scores.map(v=>`<td>${escapeHtml(v)}</td>`).join('')}<td class="total">${escapeHtml(total)}</td><td>${escapeHtml(h)}</td><td>${escapeHtml(e)}</td></tr>`;
+ const own=row('野澤ナイン',ownDisplay,ownTotal,hits,ownE),opp=row('対戦相手',oppDisplay,oppTotal,oppHits,oppE);
+ const note=[`${innings}回${finalHalf}・${ls.reason||'通常終了'}`,ls.note||''].filter(Boolean).map(escapeHtml).join('／');
+ const mismatch=ls.officialOur==null?'':`<p>※ 野澤ナインの公式得点は手動確定値です。</p>`;
+ target.innerHTML=`<div class="linescore-scroll"><table class="linescore-table"><thead><tr><th>チーム</th>${cols}<th>計</th><th>H</th><th>E</th></tr></thead><tbody>${ownIsTop?own+opp:opp+own}</tbody></table></div><div class="linescore-note">${note}${mismatch}<p>※ 野澤ナインの各回得点は打席記録から集計しています。代走などによる得点帰属のずれがある場合は、公式得点欄で合計を補正してください。相手の失策は「失策出塁」件数に補正値を加算しています。</p></div>`;
 }
 
 // 公開APIの投手記録を登板順で表示する。投球数は保存されていないため表示しない。

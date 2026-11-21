@@ -56,7 +56,7 @@ async function loadGame(){
    <section class="section"><h2 class="section-title">試合情報</h2><div class="card"><div class="info-row"><span class="info-label">試合日</span><span>${year}/${month}/${day}</span></div><div class="info-row"><span class="info-label">対戦相手</span><span>${escapeHtml(game.opponent)}</span></div><div class="info-row"><span class="info-label">試合会場</span><span>${escapeHtml(game.venue||'未登録')}</span></div><div class="info-row"><span class="info-label">得点</span><span>${scoreFor}</span></div><div class="info-row"><span class="info-label">失点</span><span>${scoreAgainst}</span></div></div></section>
    <a class="back-button" href="index.html">← 試合一覧に戻る</a>`;
   if(!/^G\d+$/.test(String(game.id||''))){document.getElementById('lineScore').textContent='試合IDを取得できません。';document.getElementById('scorebook').innerHTML='<p class="scorebook-status">試合IDを取得できません。試合情報APIに id を追加するとスコアブックを表示できます。</p>';document.getElementById('pitching').innerHTML='<p class="scorebook-status">試合IDを取得できません。</p>';return;}
-  await loadScorebook(String(game.id));
+ await loadScorebook(String(game.id), game.opponent);
  }catch(error){console.error(error);content.innerHTML='<div class="error">試合情報を読み込めませんでした。</div>';}
 }
 // 打席結果の色分け。失策・野選・犠打などを安打と誤判定しない。
@@ -110,7 +110,7 @@ function scorebookStats(items,steals){
  });
  return stats;
 }
-async function loadScorebook(gameId){
+async function loadScorebook(gameId, opponentName){
  const target=document.getElementById('scorebook');
  try{
   const res=await fetch(SCOREBOOK_API_URL+'?gameId='+encodeURIComponent(gameId));
@@ -119,7 +119,7 @@ async function loadScorebook(gameId){
   if(data.ok!==true||String(data.gameId)!==gameId)throw new Error(data.error||'APIの応答が不正です');
   const names=new Map((data.players||[]).map(p=>[String(p.id),String(p.name)]));
   renderPitching(data);
-  renderLineScore(data);
+ renderLineScore(data, opponentName);
   const starters=(data.starters||[]).slice().sort((a,b)=>Number(a.order)-Number(b.order));
   const pa=(data.plateAppearances||[]).slice().sort((a,b)=>Number(a.inning)-Number(b.inning)||Number(a.sequence)-Number(b.sequence));
   const events=(data.events||[]).slice().sort((a,b)=>Number(a.sequence)-Number(b.sequence));
@@ -177,7 +177,7 @@ async function loadScorebook(gameId){
 }
 
 
-function renderLineScore(data){
+function renderLineScore(data, opponentName){
  const target=document.getElementById('lineScore');if(!target)return;
  const ls=data.lineScore;
  if(!ls){target.innerHTML='<p class="scorebook-status">ラインスコアは未登録です。</p>';return;}
@@ -204,7 +204,7 @@ function renderLineScore(data){
  const oppTotal=ls.officialOpponent==null?oppRuns.reduce((a,b)=>a+(b??0),0):ls.officialOpponent;
  const cols=Array.from({length:innings},(_,i)=>`<th>${i+1}</th>`).join('');
  const row=(name,scores,total,h,e)=>`<tr><th scope="row">${escapeHtml(name)}</th>${scores.map(v=>`<td>${escapeHtml(v)}</td>`).join('')}<td class="total">${escapeHtml(total)}</td><td>${escapeHtml(h)}</td><td>${escapeHtml(e)}</td></tr>`;
- const own=row('野澤ナイン',ownDisplay,ownTotal,hits,ownE),opp=row('対戦相手',oppDisplay,oppTotal,oppHits,oppE);
+ const own=row('野澤ナイン',ownDisplay,ownTotal,hits,ownE),opp=row(opponentName || '対戦相手',oppDisplay,oppTotal,oppHits,oppE);
  const note=[`${innings}回${finalHalf}・${ls.reason||'通常終了'}`,ls.note||''].filter(Boolean).map(escapeHtml).join('／');
  const mismatch=ls.officialOur==null?'':`<p>※ 野澤ナインの公式得点は手動確定値です。</p>`;
  target.innerHTML=`<div class="linescore-scroll"><table class="linescore-table"><thead><tr><th>チーム</th>${cols}<th>計</th><th>H</th><th>E</th></tr></thead><tbody>${ownIsTop?own+opp:opp+own}</tbody></table></div><div class="linescore-note">${note}${mismatch}<p>※ 野澤ナインの各回得点は打席記録から集計しています。代走などによる得点帰属のずれがある場合は、公式得点欄で合計を補正してください。相手の失策は「失策出塁」件数に補正値を加算しています。</p></div>`;
